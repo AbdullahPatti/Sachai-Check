@@ -1,0 +1,232 @@
+SACHAI CHECK - URDU FAKE-NEWS TEXT PIPELINE
+What was built, why each piece exists (for defending it), how to run it, and what comes next.
+Written 2026-09-29. Scope: Urdu fake-news TEXT pipeline only (audio deepfake comes later).
+=====================================================================================================
+
+
+PART A - WHAT HAS BEEN DONE, AND THE PURPOSE OF EACH STEP
+=====================================================================================================
+
+A1. DATASETS FOUND AND DOWNLOADED  (data/raw/)
+-----------------------------------------------------------------------------------------------------
+  urdufake/  UrduFake@FIRE-2021 (Amjad et al.), 1,600 articles, 5 domains, professional journalists wrote the fakes.
+             PURPOSE: the cleanest, length-controlled benchmark; it is the only one with native domain labels.
+             NOTE: FIRE-2021 train already CONTAINS Bend-the-Truth (900) + FIRE-2020 test (400). So we use it as ONE
+             source. Counting them separately would double-count the same articles.
+  axg/       Ax-to-Grind Urdu (Harris et al., TrustCom 2023), 10,083 items, 15 domains.
+  hnb/       Hook-and-Bait Urdu (Harris et al., Sci. Reports 2025), 78,409 items, fact-checked, 2014-2023.
+  ood/       Urdu general-knowledge Q&A, Urdu product reviews, Roman-Urdu sentences (mirfan899/Urdu).
+             PURPOSE: text that is NOT news, or not in Urdu script, used to test whether our out-of-distribution
+             detector notices "this is not what I was trained on".
+  notrifact/ EMPTY - Notri-Fact is not publicly downloadable. Drop your copy in; it is auto-detected.
+  manual/claims.csv  EMPTY TEMPLATE - put the 45 SC-7 hand-verified claims here.
+
+  REJECTED: mirfan899 "real_fake_news" (split into paragraph fragments of the same articles, so pieces of one article
+  would land in both train and test = leakage), and "urdu-news-1M" (real news only; adding only-real data teaches the
+  model "this newspaper = real", i.e. it learns the SOURCE, not the truth).
+  DEFENCE: "We audited every candidate dataset and excluded ones that would inflate scores through leakage."
+
+A2. PREPROCESSING  (sachai/data.py -> normalize)
+-----------------------------------------------------------------------------------------------------
+  - Unicode NFKC + Arabic-to-Urdu letter unification (Arabic yeh/kaf/heh -> Urdu forms), Urdu/Arabic digits -> 0-9,
+    remove diacritics (aerab), tatweel, invisible zero-width characters, URLs, @handles, #tags.
+    PURPOSE: the same word typed on different keyboards must become the same token.
+  - Spelling normalisation (لئے->لیے, کیلئے->کے لیے, کردیا->کر دیا, مذید->مزید, بلکل->بالکل ...).
+    PURPOSE: our audit found that "لئے vs لیے" alone was the STRONGEST fake/real signal in Ax-to-Grind, and it
+    points the OPPOSITE way in Hook-and-Bait. That is newspaper house style, not truth. Without this the model learns
+    spelling habits of each outlet.
+  - Strip outlet boilerplate ("تصویر کے کاپی رائٹ", Getty Images, AFP, Reuters, "مزید پڑھیں").
+    PURPOSE: this text reveals WHICH website the article came from, and real news came from BBC etc.
+  - Filters: bad labels, < 4 words, < 50% Urdu script.
+
+A3. DUPLICATE REMOVAL  (data.py -> build_corpus, near_dup_clusters)
+-----------------------------------------------------------------------------------------------------
+  - Exact duplicates (text with punctuation/spaces removed, MD5 hash).
+  - Near duplicates: character 4-gram TF-IDF cosine >= 0.90 -> connected components = "story clusters".
+  - Cross-source duplicates: only one copy is kept (priority urdufake > axg > notrifact > hnb).
+  FINDINGS (numbers from our data):
+    * Hook-and-Bait contains almost ALL of Ax-to-Grind: 8,740 shared story clusters. Any published result that
+      "trains on AXG and tests on HnB" is contaminated. We remove this before any cross-dataset test.
+    * Bend-the-Truth fakes are small edits of real articles ("flights start" -> "flights stop"). There are 115 such
+      real/fake MINIMAL PAIRS. We KEEP both (they are the hardest, most useful examples) but force both into the
+      same split, and report accuracy on these pairs separately.
+    * About 12,200 duplicate rows removed in total.
+  DEFENCE: "Our test set contains no story the model saw during training, not even a reworded copy."
+
+A4. DEBUNK-FRAMING REMOVAL  (data.py -> debunk_framed, mask_debunk)
+-----------------------------------------------------------------------------------------------------
+  40% of Hook-and-Bait fakes and 26% of AXG fakes are fact-checker HEADLINES ("this viral photo is old, not from X"),
+  compared with about 6% of real items. Such a headline is a TRUE statement about a fake. A model trained on it learns "words
+  like viral/claim/photo/misleading = fake", which is useless for checking a real claim a user types.
+  -> Rows whose first 25 words are debunk-framed are dropped from BOTH classes. The debunk words are also masked at
+     inference. The ablation "abl_keep_debunk" keeps them, so we can SHOW how much they inflate scores.
+
+A5. TRAIN / VALIDATION / TEST SPLIT AND SHUFFLING  (data.py -> split, protocol_frames, length_match)
+-----------------------------------------------------------------------------------------------------
+  - 70 / 15 / 15, StratifiedGroupKFold: stratified by (source x label), grouped by story cluster.
+    PURPOSE: keeps class/source balance, and makes it impossible for a story to be in both train and test.
+  - Fixed seeds (split 1234; training seeds 13, 42, 2026). Training data is reshuffled every epoch by a seeded
+    sampler, so results are reproducible and a restart replays the exact same order.
+  - Length matching (training only): within each source, words are binned into 10 length bins and each bin keeps equal
+    real/fake counts. PURPOSE: length carries zero label information during training (fixes the 75% -> chance bug).
+  - "Lead" view: every model sees only the headline / first 64 words. PURPOSE: the datasets mix headlines (AXG,
+    HnB) with full articles (urdufake), so without this, "long text" = "urdufake" = its own class ratio.
+  - Source-balanced sampling (temperature 0.5): HnB (67k rows) would otherwise drown urdufake (1.5k rows).
+
+A6. SHORTCUT AUDIT  (sachai/audit.py)
+-----------------------------------------------------------------------------------------------------
+  - Length per class per source + histogram.
+  - Length-only classifier trained on one dataset and tested on each other one. RESULT: AUROC 0.65-0.75 inside a
+    dataset, but 0.28-0.30 from AXG/HnB to urdufake. Below 0.5 means the length cue FLIPS direction. This is the
+    measured explanation of the collapse we saw in our earlier prototype.
+  - Top class-indicative words per source (log-odds with Dirichlet prior, Monroe et al. 2008). This is how the
+    spelling and debunk shortcuts above were discovered. Remaining known confound: HnB fakes are mostly translated US
+    fact-checks (Trump, Clinton), while reals are Pakistani news. This is measured by the "by_geo" slice.
+  DEFENCE: "The design was driven by measured failure modes, not assumptions."
+
+A7. BASELINES  (audit.py -> baselines)
+-----------------------------------------------------------------------------------------------------
+  Majority class, length-only, TF-IDF char 2-5-gram + LogReg, TF-IDF word+char + LogReg.
+  PURPOSE: a transformer is only impressive if it beats these; length-only shows how much length alone explains.
+  Local CPU results on the cleaned data: pooled macro-F1 0.89, but leave-one-dataset-out only 0.55-0.62.
+  -> THE KEY RESULT FOR THE MID-EVAL: in-distribution accuracy massively overstates real-world skill.
+
+A8. TRANSFORMER TRAINING  (sachai/train.py)
+-----------------------------------------------------------------------------------------------------
+  Main: XLM-RoBERTa-large, 3 seeds (mean ± std reported). Others: XLM-R-base, MuRIL, mBERT.
+  AdamW, linear warm-up, bf16 mixed precision, gradient clipping, early stopping on validation macro-F1.
+  Temperature scaling on validation (Guo et al. 2017), so "0.8 fake" really means about 80%.
+  EXPERIMENTS (13 runs):
+    main_s13/s42/s2026   pooled split, 3 seeds          -> headline number with variance
+    lodo_axg/hnb/urdufake(/notrifact)  train on the others, test on the unseen one -> cross-dataset generalisation
+    abl_keep_debunk      debunk rows kept               -> shows debunk shortcut inflation
+    abl_no_lenmatch      no length matching             -> shows length shortcut inflation
+    abl_full_text        full article instead of lead   -> shows granularity shortcut
+    bb_xlmr_base / bb_muril / bb_mbert                  -> backbone comparison (proposal objective 4)
+
+A9. EVALUATION  (sachai/evaluate.py)
+-----------------------------------------------------------------------------------------------------
+  Metrics: macro-F1 (with bootstrap 95% CI), accuracy, per-class precision/recall, MCC, AUROC, ECE (calibration),
+  Brier, AURC (how well the model knows when it is unsure).
+  Slices on every test set: per source, per domain (GATE: any domain below macro-F1 0.70 is flagged FAIL), per
+  length quintile (flat = no length shortcut), per geography (Pakistan / India / elsewhere; flat = no topic
+  shortcut), minimal pairs, and claim-style rows only.
+  DEFENCE: "We do not average away a failing domain; we report it."
+
+A10. IN-SCOPE / OUT-OF-SCOPE / IN-DISTRIBUTION / OUT-OF-DISTRIBUTION  (sachai/ood.py + judge.py)
+-----------------------------------------------------------------------------------------------------
+  Layer 1  INPUT GATE (rules): empty, too short, not Urdu, Roman Urdu (-> Gemini transliterates to Urdu script),
+           over 1,000 words (truncated). "In-bound / out-of-bound" input handling.
+  Layer 2  DISTRIBUTION (in-distribution vs OOD): Mahalanobis distance of the model's [CLS] embedding to the training
+           classes (Lee et al. 2018). The threshold lets 95% of validation data through. Compared against MSP and
+           energy scores. Evaluated with AUROC and FPR@95%TPR on: Urdu Q&A and reviews (far-OOD), Roman Urdu
+           (script shift), and a whole unseen dataset (near-OOD, from the LODO runs).
+           Also "selective prediction": accuracy on only what the gate accepts.
+  Layer 3  TOPICAL SCOPE (in-scope vs out-of-scope): the LLM judge labels each claim in_scope (Pakistan / South Asia
+           news), out_of_scope_region (e.g. Argentina, Mexico, an Indian film abroad), or not_a_claim. Out-of-scope
+           gives a caveat and lower confidence instead of a confident guess.
+
+A11. LLM-AS-A-JUDGE  (sachai/judge.py, sachai/infer.py)
+-----------------------------------------------------------------------------------------------------
+  - Gemini with live Google Search. Today's date is in every prompt. The judge must rule on the CURRENT state of the
+    world and give dated evidence plus a "temporal_note". This handles recency ("Spain won the 2026 World Cup") and
+    contradictions over time (war -> peace treaty) without retraining anything.
+  - The judge is BLIND to the classifier's answer, so it cannot be anchored by it. The two are combined afterwards.
+  - Verdicts: SUPPORTED / REFUTED / MIXED / NOT_ENOUGH_EVIDENCE ("do not guess").
+  - Fusion rule: if the judge is decisive (>= 0.7 confidence), evidence decides. Otherwise the style classifier decides,
+    with a caveat. OOD or out-of-scope halves the style confidence, so the result becomes "unverified". Final labels:
+    likely_fake / likely_real / unverified / cannot_assess, plus caveats.
+  - META-JUDGE: a second LLM call grades each explanation 1-5 on faithfulness, relevance, recency, clarity and
+    calibration (the LLM-as-a-judge rubric method, Zheng et al. 2023).
+  - Roman-Urdu round trip: Urdu test item -> romanised -> must be detected -> transliterated back -> classified.
+    This measures script robustness.
+  - Every Gemini response is cached (outputs/llm_cache.jsonl): re-runs cost no money and give identical answers.
+  - Evaluation: classifier-only vs judge-only vs full system, on the manual claims and 150 test items.
+
+A12. ENGINEERING
+-----------------------------------------------------------------------------------------------------
+  - One F5 entry point (run_pipeline.py). It auto-installs missing packages and records the GPU, versions and pip
+    freeze.
+  - Every run has its own folder with logs, the config snapshot, and an auto-generated report/summary.md.
+  - POWER-CUT / CRASH SAFETY:
+      * Press F5 again: it automatically continues the newest unfinished run (a finished run has logs/DONE).
+      * Finished stages and experiments are skipped (corpus.csv, baseline jsons, metrics.json).
+      * An interrupted training run resumes from the exact epoch and step: the full state (weights, optimizer,
+        LR schedule, best score, random state) is saved every 15 min and at every epoch end.
+      * All writes are atomic (write .tmp, then rename), so a power cut mid-save never corrupts a file.
+      * Tested here: a simulated power cut at epoch 1 step 20 resumed at epoch 1 step 19 and finished correctly.
+  - test_logic.py: self-checks for normalisation, debunk detection, input gate, fusion rules and split leakage.
+  - sachai/infer.py: Predictor + verify(), which the FastAPI backend will call directly.
+
+
+PART B - DECISIONS THAT DIFFER FROM THE ORIGINAL PLAN (the team must agree on these)
+=====================================================================================================
+  1. PROPOSAL vs DESIGN NOTES CONFLICT: the proposal says the LLM judge "explains only, never overrides". The design
+     notes say "the judge can override the classifier when evidence disagrees". The code defaults to OVERRIDE
+     (JUDGE_CAN_OVERRIDE = True in sachai/config.py), because a style model cannot know facts. Set it to False to
+     match the proposal. Either way, fix the wording in the report so both documents agree.
+  2. The judge does not see the classifier's output (avoids anchoring bias); fusion happens afterwards.
+  3. mirfan899 datasets are excluded (leakage / real-only). The design notes suggested using them.
+  4. Bend-the-Truth, FIRE-2020 and FIRE-2021 are treated as ONE source (they are subsets of each other).
+  5. OOD handling is three layers (rules + Mahalanobis + LLM scope), not a single check.
+  6. Roman Urdu is tested by machine round trip PLUS the manual set, not only ~20 manual examples.
+  7. Domains: only urdufake has real domain labels. Other test items are tagged by Gemini, so spot-check 50 by hand.
+  8. Judge model default is gemini-2.5-flash (env SACHAI_JUDGE_MODEL). The Gemini docs now list 3.x Flash models;
+     if you have access, use a newer one. Keep ONE model for the whole evaluation.
+
+
+PART C - SEQUENCE TO RUN THE PIPELINE
+=====================================================================================================
+  On the GPU PC:
+  1. Copy the whole "Sachai Check" folder.
+  2. Install Python 3.11 or 3.12.
+  3. pip install torch --index-url https://download.pytorch.org/whl/cu128   (match your CUDA; check nvidia-smi)
+     pip install -r requirements.txt
+  4. (Optional, recommended) Put Notri-Fact into data/raw/notrifact/ and the 45 manual claims into data/manual/claims.csv.
+  5. (Optional, recommended) Set the environment variable GEMINI_API_KEY (Windows: System Properties -> Environment
+     Variables), then restart the editor.
+  6. python test_logic.py              -> must print "all checks passed"
+  7. Open run_pipeline.py and press F5. Stages run in this order:
+        data -> audit -> baselines -> transformers -> judge -> report
+     Approximate time: 5-8 hours on one 24 GB GPU (estimate). Watch outputs/runs/<run>/logs/pipeline.log.
+  8. If power goes / PC restarts: press F5 again. It continues where it stopped.
+  9. Results: outputs/runs/<run>/report/summary.md (all tables), audit/length_by_class.png (figure),
+     experiments/main_s13/model/ (deployment model).
+  10. Added the Gemini key later? Set SACHAI_RUN=<run folder name> and press F5: only the judge + report run.
+  Environment switches: SACHAI_SMOKE=1 (3-minute test on any laptop), SACHAI_NEW=1 (force a fresh run),
+                        SACHAI_RUN=<name> (open a specific run).
+  Low GPU memory (< 24 GB): set BATCH = 16 in sachai/config.py.
+
+
+PART D - WHAT NEXT
+=====================================================================================================
+  Before mid-evaluation:
+  1. Run the pipeline on the GPU PC; paste report/summary.md tables into the report (methodology + results).
+  2. Collect the 45 manual claims NOW. Include recent 2025-26 events, non-Pakistan claims, and Roman Urdu.
+     They are the only honest test of recency and scope.
+  3. Get Notri-Fact into data/raw/notrifact/ (it is from our own earlier paper).
+  4. Spot-check 50 Gemini domain tags and 30 judge verdicts by hand, and report agreement.
+  5. Report narrative: earlier failure (75% -> chance) -> audit finds WHY (length flip, spelling, debunk framing,
+     AXG inside HnB) -> fixes -> honest LODO numbers -> the judge layer covers what style cannot.
+  After mid-evaluation:
+  6. If LODO stays near 0.55-0.65: try adversarial debiasing against source (gradient reversal), or
+     LLM claim-extraction to turn debunk headlines back into the original claims (recovers the dropped rows).
+  7. FastAPI backend: load Predictor once at startup; POST /verify -> infer.verify(); store the JSON in Postgres.
+  8. Audio deepfake pipeline (CSALT-LUMS), reusing the same run/log/resume structure and the same judge layer.
+  9. Optional: re-fine-tune the classifier once more before the final evaluation if new verified data is added (no daily
+     retraining is needed; recency comes from live retrieval).
+
+
+FILE MAP
+=====================================================================================================
+  run_pipeline.py        F5 entry point: stages, logging, auto-resume, report
+  sachai/config.py       every setting (models, epochs, thresholds, experiments, judge)
+  sachai/data.py         download, normalise, filter, dedup, split, length matching, OOD sets
+  sachai/audit.py        shortcut audit + classical baselines
+  sachai/train.py        transformer training (resumable), calibration, OOD fitting, evaluation
+  sachai/evaluate.py     metrics, bootstrap CI, slices
+  sachai/ood.py          input gate + Mahalanobis/energy/MSP OOD detection
+  sachai/judge.py        Gemini judge, scope, transliteration, domain tags, meta-judge, fusion
+  sachai/infer.py        Predictor + verify() for the backend; end-to-end system evaluation
+  test_logic.py          self-checks
+  README.md              setup + methodology summary
