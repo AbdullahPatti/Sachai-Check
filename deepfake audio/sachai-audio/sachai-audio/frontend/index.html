@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sachai Check · Urdu news and voice verification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap">
+<style>
+:root{
+  --ground:#EFE4D2;--paper:#F7F0E4;--paper2:#E6D7BF;--line:#CDBFA8;--field:#FFFBF4;
+  --ink:#1F2430;--ink2:#3A4252;--muted:#4B5568;--pigeon:#5E6B82;
+  --deep:#2C3444;--deep2:#3C4659;--deep3:#232A38;--soft:#A9B2C0;--onDeep:#F7F0E4;
+  --lime:#C9F03A;--limeHover:#D8F86A;--onLime:#1F2430;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --display:'Bricolage Grotesque',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --ur:'Noto Nastaliq Urdu','Jameel Noori Nastaleeq','Urdu Typesetting',serif;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#151922;--paper:#1C222D;--paper2:#262D3A;--line:#343C4B;--field:#181D27;
+  --ink:#EFE4D2;--ink2:#D5DAE2;--muted:#A9B2C0;--pigeon:#A9B2C0;--limeHover:#D8F86A;
+}}
+:root[data-theme="dark"]{
+  --ground:#151922;--paper:#1C222D;--paper2:#262D3A;--line:#343C4B;--field:#181D27;
+  --ink:#EFE4D2;--ink2:#D5DAE2;--muted:#A9B2C0;--pigeon:#A9B2C0;
+}
+*,*:before,*:after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 84px);scroll-behavior:smooth;background:var(--ground)}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+button{font:inherit;color:inherit}
+img{max-width:100%}
+.ur{font-family:var(--ur);direction:rtl;letter-spacing:0}
+:focus-visible{outline:3px solid var(--lime);outline-offset:3px;border-radius:8px}
+a,button,textarea,.card{transition:background-color .3s ease,color .3s ease,border-color .3s ease,box-shadow .4s ease,transform .4s var(--ease)}
+.wrap{width:min(1296px,100% - 48px);margin-inline:auto}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--ground) 86%,transparent);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);border-bottom:1px solid var(--line)}
+.nav .wrap{height:76px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo{width:40px;height:40px;background:var(--lime);border:1.5px solid #1F2430;border-radius:10px;display:grid;place-items:center;animation:float 5s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-4px)}}
+.brand b{font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:-.02em}
+.brand .ur{font-size:15px;line-height:2;color:var(--pigeon)}
+.tabs{display:flex;gap:4px;background:var(--paper2);padding:5px;border-radius:999px;position:relative}
+.tabs .ind{position:absolute;top:5px;height:calc(100% - 10px);background:var(--ink);border-radius:999px;transition:left .5s var(--ease),width .5s var(--ease);z-index:0}
+.tabs a{position:relative;z-index:1;text-decoration:none;font-size:15px;font-weight:500;padding:10px 18px;border-radius:999px;white-space:nowrap}
+.tabs a[aria-current="page"]{color:var(--ground)}
+.navtag{font-size:13px;color:var(--muted);border:1px solid var(--soft);border-radius:999px;padding:8px 14px;white-space:nowrap}
+
+/* views */
+.view{display:none}
+.view.on{display:block}
+.view.leave{animation:leave .22s ease both}
+@keyframes leave{to{opacity:0;transform:translateY(-10px)}}
+.r{opacity:0}
+.view.on .r{animation:rise .9s var(--ease) both;animation-delay:var(--d,0s)}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.fade{animation:fade .45s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* shared type */
+h1,h2,h3,h4{margin:0}
+.display{font-family:var(--display);font-weight:800;letter-spacing:-.035em}
+.kicker{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:10px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--lime);border:1px solid #1F2430;flex-shrink:0}
+.pulse{animation:pulse 1.6s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(201,240,58,.7)}100%{box-shadow:0 0 0 18px rgba(201,240,58,0)}}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:12px;min-height:52px;padding:12px 26px;border-radius:999px;font-weight:600;font-size:16px;text-decoration:none;cursor:pointer;border:1.5px solid #1F2430}
+.btn:active{transform:scale(.97)}
+.btn-lime{background:var(--lime);color:var(--onLime)}
+.btn-lime:hover{background:var(--limeHover)}
+.btn-ink{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.btn-ink:hover{background:var(--ink2)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--ink)}
+.btn-ghost:hover{background:var(--paper2)}
+.btn .ur{font-size:15px;line-height:1.6}
+.arr{transition:transform .35s var(--ease)}
+a:hover .arr,button:hover .arr,.card:hover .arr{transform:translateX(5px)}
+
+/* home */
+.hero{padding:88px 0 56px;display:flex;justify-content:space-between;align-items:flex-end;gap:48px;flex-wrap:wrap}
+.hero h1{font-size:clamp(46px,7vw,92px);line-height:.96}
+.hero h1 mark{background:var(--lime);color:#1F2430;padding:0 .14em;border-radius:.16em}
+.hero p.lead{font-size:19px;line-height:1.6;color:var(--ink2);max-width:620px;margin:0}
+.hero .ur.big{font-size:clamp(28px,3.2vw,42px);line-height:2.1;font-weight:600;color:var(--ink);margin:0;text-align:right}
+.ticker{overflow:hidden;border-block:1px solid var(--line);height:64px;display:flex;align-items:center;margin-bottom:56px}
+.track{display:flex;width:max-content;animation:marq 48s linear infinite}
+.track span{display:flex;align-items:center;gap:14px;padding-right:46px;font-size:15px;font-weight:500;white-space:nowrap}
+.track .ur{font-size:17px;line-height:2;color:var(--pigeon)}
+.track i{width:7px;height:7px;border-radius:50%;background:var(--lime);border:1px solid #1F2430;margin-left:30px}
+.ticker:hover .track{animation-play-state:paused}
+@keyframes marq{to{transform:translateX(-50%)}}
+.modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.card{text-decoration:none;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:26px;min-height:540px}
+.card:hover{transform:translateY(-6px);box-shadow:0 26px 60px rgba(20,24,33,.18)}
+.card.text{background:var(--paper);border:1.5px solid var(--ink)}
+.card.voice{background:var(--deep);color:var(--onDeep)}
+.card .top{display:flex;justify-content:space-between;align-items:flex-start}
+.card .tag{font-size:13px;color:var(--muted)}
+.card.voice .tag{color:var(--soft)}
+.icon{width:64px;height:64px;border-radius:18px;display:grid;place-items:center}
+.card h2{font-family:var(--display);font-weight:800;font-size:clamp(36px,3.4vw,48px);letter-spacing:-.03em;line-height:1}
+.card .ur.sub{font-size:26px;line-height:2.1;margin:6px 0 0;text-align:left}
+.card p{margin:0;font-size:17px;line-height:1.6}
+.card.text p{color:var(--ink2)}
+.card.voice p{color:#D5DAE2}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span{font-size:13px;padding:7px 12px;border-radius:999px}
+.card.text .chips span{background:var(--paper2)}
+.card.voice .chips span{background:var(--deep2)}
+.card .go{margin-top:auto;align-self:flex-start;border:none}
+.mini{display:flex;gap:3px;align-items:center}
+.mini b{width:4px;border-radius:2px;background:#1F2430;animation:wave .9s ease-in-out infinite alternate}
+.how{padding:96px 0 80px}
+.how .head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:36px}
+.how h3{font-family:var(--display);font-weight:800;font-size:40px;letter-spacing:-.02em}
+.how .ur{font-size:22px;line-height:2;color:var(--pigeon)}
+.steps3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1.5px solid var(--ink)}
+.steps3>div{padding:28px 32px 0;display:flex;flex-direction:column;gap:10px}
+.steps3>div+div{border-left:1px solid var(--line)}
+.steps3 .n{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.steps3 h4{font-size:22px;font-weight:600}
+.steps3 .ur{font-size:17px;text-align:left;margin:0}
+.steps3 p{margin:0;font-size:16px;line-height:1.6;color:var(--ink2)}
+.foot{background:#1F2430;color:#D5DAE2;padding:40px 0 calc(40px + env(safe-area-inset-bottom,0px))}
+.foot .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:14px;line-height:1.7}
+.foot b{font-family:var(--display);font-size:18px;color:#F7F0E4;display:block}
+.foot .adv{color:var(--lime)}
+
+/* tool pages */
+.phead{padding:56px 0 36px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.phead h1{font-size:clamp(42px,5.2vw,68px);line-height:1}
+.phead .ur{font-size:clamp(26px,2.8vw,38px);line-height:2.1;font-weight:600;margin:0}
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:24px;align-items:start;padding-bottom:64px}
+.panel{border-radius:28px;padding:36px;display:flex;flex-direction:column;gap:24px}
+.panel.light{background:var(--paper);border:1.5px solid var(--ink)}
+.panel.dark{background:var(--deep);color:var(--onDeep)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.lbl{font-size:15px;font-weight:600}
+.lbl small{font-weight:400;color:var(--muted);font-size:15px}
+.seg{position:relative;display:flex;padding:5px;border-radius:999px;background:var(--paper2)}
+.panel.dark .seg{background:var(--deep2)}
+.seg .ind{position:absolute;top:5px;left:5px;width:150px;height:calc(100% - 10px);border-radius:999px;background:var(--ink);transition:transform .5s var(--ease)}
+.panel.dark .seg .ind{background:var(--lime)}
+.seg button{position:relative;z-index:1;width:150px;min-height:44px;border:none;background:transparent;border-radius:999px;cursor:pointer;font-size:14px;font-weight:600}
+.seg button[aria-pressed="true"]{color:var(--ground)}
+.panel.dark .seg button{color:var(--onDeep)}
+.panel.dark .seg button[aria-pressed="true"]{color:#1F2430}
+.seg .ur{font-size:15px;line-height:1.6}
+textarea{width:100%;resize:vertical;background:var(--field);border:1px solid var(--line);border-radius:18px;padding:18px 24px;color:var(--ink)}
+textarea:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 4px rgba(201,240,58,.55)}
+textarea.urdu{font-family:var(--ur);font-size:22px;line-height:2.2;direction:rtl;min-height:220px}
+textarea.latin{font-family:var(--body);font-size:18px;line-height:1.6;min-height:120px}
+.translit{background:#1F2430;border-radius:18px;padding:16px 24px;display:flex;flex-direction:column;gap:4px}
+.translit span{font-size:13px;color:var(--lime)}
+.translit p{margin:0;font-family:var(--ur);direction:rtl;font-size:20px;line-height:2.2;color:#F7F0E4}
+.domains{display:flex;flex-wrap:wrap;gap:8px}
+.chip{cursor:pointer;display:flex;align-items:center;gap:8px;padding:6px 14px;min-height:44px;border-radius:999px;border:1px solid var(--line);background:transparent;font-size:14px}
+.chip:hover{border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--lime);color:#1F2430;border:1.5px solid #1F2430;font-weight:600}
+.chip .ur{font-size:13px;line-height:1.6}
+.actions{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-top:18px;border-top:1px solid var(--line);flex-wrap:wrap}
+.panel.dark .actions{border-color:var(--deep2)}
+.hint{font-size:13px;color:var(--muted)}
+.panel.dark .hint{color:var(--soft)}
+.side{display:flex;flex-direction:column;gap:16px}
+.verdict{border-radius:28px;padding:32px;display:flex;flex-direction:column;gap:20px}
+.verdict.bad{background:var(--deep);color:var(--onDeep)}
+.verdict.good{background:var(--lime);color:#1F2430;border:1.5px solid #1F2430}
+.verdict .meta{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px}
+.verdict.bad .meta>span:first-child{color:var(--soft)}
+.verdict.good .meta>span:first-child{color:#3A4252}
+.pill{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px}
+.verdict.bad .pill{background:var(--deep2)}
+.verdict.good .pill{background:rgba(31,36,48,.1)}
+.verdict h2{font-family:var(--display);font-weight:800;font-size:clamp(40px,4vw,54px);letter-spacing:-.03em;line-height:1}
+.verdict .ur.v{font-size:30px;line-height:2.1;font-weight:700;margin:0;text-align:left}
+.verdict.bad .ur.v{color:var(--lime)}
+.bar{height:12px;border-radius:999px;overflow:hidden}
+.verdict.bad .bar{background:var(--deep2)}
+.verdict.good .bar{background:#A6C62A}
+.bar i{display:block;height:100%;border-radius:999px;transform-origin:left;animation:fill 1.2s var(--ease) .25s both}
+.verdict.bad .bar i{background:var(--lime)}
+.verdict.good .bar i{background:#1F2430}
+@keyframes fill{from{transform:scaleX(0)}}
+.why{background:var(--paper);border:1px solid var(--line);border-radius:28px;padding:32px;display:flex;flex-direction:column;gap:16px}
+.why h3{font-size:20px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.why h3 .ur{font-weight:400;font-size:18px;line-height:2;color:var(--pigeon)}
+.why ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:12px;font-size:16px;line-height:1.6;color:var(--ink2)}
+.why li{animation:rise .8s var(--ease) both}
+.why .note{margin:0;font-size:13px;line-height:1.6;color:var(--muted);padding-top:14px;border-top:1px solid var(--line)}
+.btnrow{display:flex;gap:12px}
+.btnrow .btn{flex:1;justify-content:center}
+.loading{background:var(--deep);color:var(--onDeep);border-radius:28px;padding:32px;display:flex;flex-direction:column;gap:24px}
+.loading .top{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--soft)}
+.loading .top .ur{font-size:18px;line-height:2;color:var(--lime)}
+.st{display:flex;align-items:center;gap:14px;font-size:16px;color:var(--soft)}
+.st.on,.st.ok{color:var(--onDeep)}
+.st .ic{width:26px;height:26px;display:grid;place-items:center;flex-shrink:0}
+.st .pd{width:8px;height:8px;border-radius:50%;background:var(--pigeon)}
+.st .sp{width:22px;height:22px;border-radius:50%;border:2.5px solid #4A5569;border-top-color:var(--lime);animation:spin .8s linear infinite}
+.st .ck{width:26px;height:26px;border-radius:50%;background:var(--lime);display:grid;place-items:center;animation:pop .35s var(--ease) both}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{from{transform:scale(.4);opacity:0}}
+.shim{height:14px;border-radius:8px;background:linear-gradient(90deg,#3C4659 0%,#4A5569 50%,#3C4659 100%);background-size:200% 100%;animation:shim 1.3s linear infinite}
+@keyframes shim{to{background-position:-200% 0}}
+.demo{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted)}
+.demo .mini-seg{display:flex;gap:4px;background:var(--paper2);padding:4px;border-radius:999px}
+.demo button{border:none;background:transparent;border-radius:999px;padding:6px 12px;min-height:36px;cursor:pointer;font-size:13px;font-weight:500}
+.demo button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+.empty{border:1.5px dashed var(--line);border-radius:28px;padding:40px 32px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.empty h3{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:-.02em}
+.empty p{margin:0;color:var(--ink2);line-height:1.6}
+
+/* audio */
+.drop{cursor:pointer;border:1.5px dashed var(--soft);border-radius:22px;padding:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;min-height:250px}
+.drop:hover,.drop.over{border-color:var(--lime);background:rgba(201,240,58,.06)}
+.drop .up{width:64px;height:64px;border-radius:50%;background:var(--lime);display:grid;place-items:center;animation:float 5s ease-in-out infinite}
+.drop strong{font-size:20px}
+.drop .ur{font-size:18px;line-height:2;color:var(--lime)}
+.drop small{font-family:var(--mono);font-size:13px;color:var(--soft)}
+.rec{border:1px solid var(--deep2);border-radius:22px;padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:250px;text-align:center}
+.recbtn{width:96px;height:96px;border-radius:50%;border:6px solid var(--deep2);background:var(--lime);cursor:pointer;display:grid;place-items:center}
+.recbtn:active{transform:scale(.95)}
+.recbtn.live{animation:pulse 1.5s ease-out infinite}
+.recbtn .sq{width:26px;height:26px;border-radius:6px;background:#1F2430;display:none}
+.recbtn.live .sq{display:block}.recbtn.live svg{display:none}
+.clock{font-family:var(--mono);font-size:28px}
+.rec .ur{font-size:17px;line-height:2;color:var(--lime)}
+.rec small{font-size:13px;color:var(--soft);max-width:360px}
+.clip{background:var(--deep3);border-radius:22px;padding:22px 24px;display:flex;flex-direction:column;gap:16px}
+.clip .row{flex-wrap:nowrap}
+.play{width:44px;height:44px;flex-shrink:0;border-radius:50%;border:none;background:#F7F0E4;cursor:pointer;display:grid;place-items:center}
+.play:active{transform:scale(.92)}
+.fname{display:flex;flex-direction:column;gap:2px;min-width:0}
+.fname b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fname span{font-family:var(--mono);font-size:12px;color:var(--soft)}
+.ghost-s{border:1px solid var(--soft);background:transparent;color:var(--onDeep);font-size:13px;padding:8px 16px;min-height:44px;border-radius:999px;cursor:pointer}
+.ghost-s:hover{border-color:var(--lime)}
+.wave{height:72px;display:flex;align-items:center;gap:3px;position:relative}
+.wave b{flex:1;border-radius:2px;background:#6B778C;transform-origin:center;transition:background-color .4s ease}
+.wave b.f{background:var(--lime)}
+.wave b.pl{background:#F7F0E4}
+.wave.playing b{animation:wave .9s ease-in-out infinite alternate}
+@keyframes wave{from{transform:scaleY(.35)}to{transform:scaleY(1)}}
+.segs{height:28px;display:flex;gap:3px;border-radius:8px;overflow:hidden}
+.segs i{flex:1;background:var(--paper2);animation:rise .6s var(--ease) both}
+.segs i.f{background:var(--ink)}
+.legend{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.legend i{width:12px;height:12px;border-radius:3px;background:var(--ink)}
+.segs i.m{background:var(--pigeon);opacity:.55}
+.legend i.lm{background:var(--pigeon);opacity:.55;margin-left:8px}
+.verdict.mid{background:var(--paper2);color:var(--ink);border:1.5px solid var(--ink)}
+.verdict.mid .meta>span:first-child{color:var(--muted)}
+.verdict.mid .pill,.verdict.good .pill{background:rgba(31,36,48,.1)}
+.verdict.mid .ur.v{color:var(--pigeon)}
+.verdict.mid .bar{background:var(--line)}
+.verdict.mid .bar i{background:var(--pigeon)}
+.cav{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:1.55;color:var(--muted)}
+.play:disabled{cursor:not-allowed}
+.times{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.pfoot{border-top:1px solid var(--line);padding:24px 0 calc(24px + env(safe-area-inset-bottom,0px))}
+.pfoot .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.pfoot .ur{line-height:2}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (max-width:980px){
+  .modes,.grid2{grid-template-columns:1fr}
+  .navtag{display:none}
+  .steps3{grid-template-columns:1fr}
+  .steps3>div+div{border-left:none;border-top:1px solid var(--line)}
+  .steps3>div{padding:22px 0}
+  .card{min-height:0;padding:32px}
+}
+@media (max-width:640px){
+  .wrap{width:calc(100% - 32px)}
+  .nav .wrap{height:auto;padding:12px 0;flex-wrap:wrap}
+  .brand .ur{display:none}
+  .tabs{order:3;width:100%}
+  .tabs a{flex:1;text-align:center;padding:10px 4px;font-size:13px}
+  .hero{padding:48px 0 36px}
+  .hero .ur.big{text-align:left}
+  .panel{padding:24px}
+  .seg button,.seg .ind{width:130px}
+  .phead{padding:36px 0 24px}
+  .actions .btn{width:100%;justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.r{opacity:1}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#/">
+      <span class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1F2430" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span>
+      <b>Sachai Check</b><span class="ur" lang="ur">سچائی چیک</span>
+    </a>
+    <nav class="tabs" aria-label="Modes">
+      <span class="ind" aria-hidden="true"></span>
+      <a href="#/" data-route="home">Home</a>
+      <a href="#/news" data-route="news">Fake News</a>
+      <a href="#/audio" data-route="audio">Audio Deepfake</a>
+    </nav>
+    <span class="navtag">FAST-NUCES · FYP 2026</span>
+  </div>
+</header>
+
+<main>
+<!-- HOME -->
+<section class="view" data-view="home" aria-label="Home">
+  <div class="wrap hero">
+    <div style="display:flex;flex-direction:column;gap:26px;flex:1 1 720px">
+      <span class="kicker r"><span class="dot pulse"></span>Urdu verification for text and speech</span>
+      <h1 class="display r" style="--d:.08s">Check the news.<br>Check the <mark>voice.</mark></h1>
+      <p class="lead r" style="--d:.16s">Two independent pipelines. One reads Urdu news in Nastaliq or Roman script, the other listens for synthetic Urdu speech. Every verdict comes with a plain explanation.</p>
+    </div>
+    <p class="ur big r" lang="ur" style="--d:.24s">خبر بھی پرکھیں،<br>آواز بھی پرکھیں</p>
+  </div>
+  <div class="ticker r" style="--d:.3s" aria-hidden="true"><div class="track" id="ticker"></div></div>
+  <div class="wrap modes">
+    <a class="card text r" href="#/news" style="--d:.34s">
+      <div class="top">
+        <span class="icon" style="background:#1F2430"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#C9F03A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
+        <span class="tag">Mode 1 · Text</span>
+      </div>
+      <div><h2>Fake News Detection</h2><p class="ur sub" lang="ur" style="color:var(--pigeon)">جعلی خبر کی جانچ</p></div>
+      <p>Paste a headline, a forwarded message or a full article. Roman Urdu is transliterated to Nastaliq before the classifier reads it.</p>
+      <div class="chips"><span>Nastaliq</span><span>Roman Urdu</span><span>8 news domains</span><span>Judge explanation</span></div>
+      <span class="btn btn-ink go">Check a news text <svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9F03A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a>
+    <a class="card voice r" href="#/audio" style="--d:.42s">
+      <div class="top">
+        <span class="icon mini" style="background:#C9F03A;justify-content:center"><b style="height:14px"></b><b style="height:26px;animation-delay:.12s"></b><b style="height:34px;animation-delay:.24s"></b><b style="height:22px;animation-delay:.36s"></b><b style="height:12px;animation-delay:.48s"></b></span>
+        <span class="tag">Mode 2 · Speech</span>
+      </div>
+      <div><h2 style="color:#F7F0E4">Audio Deepfake Detection</h2><p class="ur sub" lang="ur" style="color:#C9F03A">آڈیو ڈیپ فیک کی جانچ</p></div>
+      <p>Upload a voice note or record one here. The model flags cloned or text-to-speech Urdu voices and marks the segments that gave it away.</p>
+      <div class="chips"><span>Upload or record</span><span>Urdu speech</span><span>Segment timeline</span><span>Judge explanation</span></div>
+      <span class="btn btn-lime go">Check an audio clip <svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F2430" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a>
+  </div>
+  <div class="wrap how" id="how">
+    <div class="head r" style="--d:.5s"><h3>How a check works</h3><p class="ur" lang="ur" style="margin:0">جانچ کیسے ہوتی ہے</p></div>
+    <div class="steps3">
+      <div class="r" style="--d:.55s"><span class="n">01</span><h4>Submit</h4><p class="ur" lang="ur" style="color:var(--pigeon)">جمع کریں</p><p>Text in either script, or an audio clip. Pick the mode, nothing is fused.</p></div>
+      <div class="r" style="--d:.62s"><span class="n">02</span><h4>Classify</h4><p class="ur" lang="ur" style="color:var(--pigeon)">درجہ بندی</p><p>A dedicated model per pipeline returns the verdict and a confidence score.</p></div>
+      <div class="r" style="--d:.69s"><span class="n">03</span><h4>Explain</h4><p class="ur" lang="ur" style="color:var(--pigeon)">وضاحت</p><p>An LLM judge writes the reasoning. It explains the verdict, it never overrides it.</p></div>
+    </div>
+  </div>
+  <footer class="foot">
+    <div class="wrap">
+      <div><b>Sachai Check</b>Research prototype · National University of Computer and Emerging Sciences, Lahore</div>
+      <div style="text-align:right">Muhammad Abdullah Haroon · Ikhlas Ahmad · Zayan Amjad<br><span class="adv">Advisor: Ms. Sukhan Amir</span></div>
+    </div>
+  </footer>
+</section>
+
+<!-- FAKE NEWS -->
+<section class="view" data-view="news" aria-label="Fake news detection">
+  <div class="wrap phead">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span class="kicker r">Mode 1 · Text pipeline</span>
+      <h1 class="display r" style="--d:.08s">Fake News Detection</h1>
+    </div>
+    <p class="ur r" lang="ur" style="--d:.16s">جعلی خبر کی جانچ</p>
+  </div>
+  <div class="wrap grid2">
+    <div class="panel light r" style="--d:.2s">
+      <div class="row">
+        <span class="lbl">Script</span>
+        <div class="seg" id="scriptSeg">
+          <span class="ind" aria-hidden="true"></span>
+          <button type="button" data-v="nastaliq" aria-pressed="true"><span class="ur" lang="ur">اردو نستعلیق</span></button>
+          <button type="button" data-v="roman" aria-pressed="false">Roman Urdu</button>
+        </div>
+      </div>
+      <label class="row lbl" for="newsText"><span>News text</span><span class="ur" lang="ur" style="font-weight:400;font-size:15px;line-height:1.8;color:var(--pigeon)">خبر یہاں لکھیں یا چسپاں کریں</span></label>
+      <textarea id="newsText" class="urdu" lang="ur" dir="rtl"></textarea>
+      <div class="translit fade" id="translit" hidden>
+        <span>Transliterated to Nastaliq before classification</span>
+        <p lang="ur" id="translitText"></p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span class="lbl">Domain <small>· auto-detected, tap to override</small></span>
+        <div class="domains" id="domains"></div>
+      </div>
+      <div class="actions">
+        <span class="hint" id="count">Text only · no links or images</span>
+        <button type="button" class="btn btn-lime" id="verifyNews">Verify <span class="ur" lang="ur">تصدیق کریں</span><svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F2430" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+    <div class="side r" style="--d:.3s" id="newsSide" aria-live="polite"></div>
+  </div>
+  <footer class="pfoot"><div class="wrap"><span>Research prototype. Treat every verdict as a signal, not proof.</span><span class="ur" lang="ur">نتیجہ ایک اشارہ ہے، حتمی ثبوت نہیں</span></div></footer>
+</section>
+
+<!-- AUDIO -->
+<section class="view" data-view="audio" aria-label="Audio deepfake detection">
+  <div class="wrap phead">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span class="kicker r">Mode 2 · Speech pipeline</span>
+      <h1 class="display r" style="--d:.08s">Audio Deepfake Detection</h1>
+    </div>
+    <p class="ur r" lang="ur" style="--d:.16s">آڈیو ڈیپ فیک کی جانچ</p>
+  </div>
+  <div class="wrap grid2">
+    <div class="panel dark r" style="--d:.2s">
+      <div class="row">
+        <span class="lbl">Source</span>
+        <div class="seg" id="srcSeg">
+          <span class="ind" aria-hidden="true"></span>
+          <button type="button" data-v="upload" aria-pressed="true">Upload file</button>
+          <button type="button" data-v="record" aria-pressed="false">Record</button>
+        </div>
+      </div>
+      <label class="drop fade" id="drop" for="audioFile">
+        <span class="up"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1F2430" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"/></svg></span>
+        <strong>Drop an audio file or browse</strong>
+        <span class="ur" lang="ur">آڈیو فائل یہاں چھوڑیں</span>
+        <small>WAV · MP3 · M4A · OGG</small>
+        <input id="audioFile" class="sr" type="file" accept="audio/*">
+      </label>
+      <div class="rec fade" id="rec" hidden>
+        <button type="button" class="recbtn" id="recBtn" aria-label="Start recording">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1F2430" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          <span class="sq"></span>
+        </button>
+        <span class="clock" id="clock">00:00</span>
+        <span class="ur" lang="ur" id="recUr">ریکارڈنگ شروع کرنے کے لیے دبائیں</span>
+        <small id="recNote"></small>
+      </div>
+      <div class="clip">
+        <div class="row">
+          <div style="display:flex;align-items:center;gap:14px;min-width:0">
+            <button type="button" class="play" id="playBtn" aria-label="Play clip"></button>
+            <div class="fname"><b id="fname">No clip yet</b><span id="fmeta">Upload or record 3 to 60 s of Urdu speech</span></div>
+          </div>
+          <button type="button" class="ghost-s" id="replace">Replace</button>
+        </div>
+        <div class="wave" id="wave"></div>
+      </div>
+      <div class="actions">
+        <span class="hint">Urdu speech only</span>
+        <button type="button" class="btn btn-lime" id="verifyAudio" style="border:none">Analyse voice <span class="ur" lang="ur">آواز جانچیں</span><svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F2430" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+    <div class="side r" style="--d:.3s" id="audioSide" aria-live="polite"></div>
+  </div>
+  <footer class="pfoot"><div class="wrap"><span>Research prototype. Treat every verdict as a signal, not proof.</span><span class="ur" lang="ur">نتیجہ ایک اشارہ ہے، حتمی ثبوت نہیں</span></div></footer>
+</section>
+</main>
+
+<script>
+(function(){
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){} } };
+const PLAY = '<svg width="16" height="16" viewBox="0 0 24 24" fill="#1F2430"><path d="M7 4l13 8-13 8z"/></svg>';
+const PAUSE = '<svg width="16" height="16" viewBox="0 0 24 24" fill="#1F2430"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+const CK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F2430" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- router ---------- */
+const views = { home: $('[data-view="home"]'), news: $('[data-view="news"]'), audio: $('[data-view="audio"]') };
+let current = null;
+function routeName(){ const h = location.hash.replace('#/',''); return views[h] ? h : 'home'; }
+function moveInd(el, ind, pad){ if(!el || !ind) return; ind.style.left = el.offsetLeft + 'px'; ind.style.width = el.offsetWidth + 'px'; }
+function go(){
+  const name = routeName();
+  $$('.tabs a').forEach((a) => { if (a.dataset.route === name) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+  moveInd($('.tabs a[aria-current="page"]'), $('.tabs .ind'));
+  if (current === name) return;
+  const prev = current ? views[current] : null;
+  const show = () => {
+    if (prev) { prev.classList.remove('on','leave'); }
+    const v = views[name]; v.classList.add('on');
+    window.scrollTo(0, 0);
+    document.title = { home: 'Sachai Check · Urdu news and voice verification', news: 'Fake News Detection · Sachai Check', audio: 'Audio Deepfake Detection · Sachai Check' }[name];
+    if (name !== 'audio') stopPlayback();
+  };
+  current = name;
+  if (prev && !matchMedia('(prefers-reduced-motion: reduce)').matches) { prev.classList.add('leave'); setTimeout(show, 200); } else show();
+}
+window.addEventListener('hashchange', go);
+window.addEventListener('resize', () => { moveInd($('.tabs a[aria-current="page"]'), $('.tabs .ind')); });
+document.addEventListener('click', (e) => { const a = e.target.closest('a[href^="#/"]'); if (a && a.getAttribute('href') === location.hash) { e.preventDefault(); } });
+
+/* ---------- ticker ---------- */
+const TK = [['Politics','سیاست'],['Business','کاروبار'],['Health','صحت'],['Sports','کھیل'],['Technology','ٹیکنالوجی'],['Entertainment','تفریح'],['Education','تعلیم'],['General','عمومی'],['Nastaliq','نستعلیق'],['Roman Urdu','رومن اردو'],['Voice clones','نقلی آوازیں'],['Text to speech','مصنوعی گفتار']];
+$('#ticker').innerHTML = TK.concat(TK).map(([en, ur]) => `<span>${en}<span class="ur" lang="ur">${ur}</span><i></i></span>`).join('');
+
+/* ---------- segmented ---------- */
+function segment(root, onChange){
+  const btns = $$('button', root), ind = $('.ind', root);
+  function set(v){
+    btns.forEach((b, i) => { const on = b.dataset.v === v; b.setAttribute('aria-pressed', on); if (on) ind.style.transform = `translateX(${i * 100}%)`; });
+    onChange(v);
+  }
+  btns.forEach((b) => b.addEventListener('click', () => set(b.dataset.v)));
+  return set;
+}
+
+/* ---------- step runner ---------- */
+function runSteps(side, urLabel, labels, done){
+  side.innerHTML = `<div class="loading fade"><div class="top"><span>Analysing</span><span class="ur" lang="ur">${urLabel}</span></div><div class="stl" style="display:flex;flex-direction:column;gap:16px">${labels.map((l) => `<div class="st"><span class="ic"><span class="pd"></span></span><span>${l}</span></div>`).join('')}</div><div style="display:flex;flex-direction:column;gap:12px;padding-top:6px"><span class="shim" style="width:92%"></span><span class="shim" style="width:78%"></span><span class="shim" style="width:62%"></span></div></div>`;
+  const rows = $$('.st', side);
+  let i = 0;
+  const tick = () => {
+    rows.forEach((r, k) => {
+      const ic = $('.ic', r);
+      r.className = 'st' + (k < i ? ' ok' : k === i ? ' on' : '');
+      ic.innerHTML = k < i ? `<span class="ck">${CK}</span>` : k === i ? '<span class="sp"></span>' : '<span class="pd"></span>';
+    });
+    if (i >= rows.length) { setTimeout(done, 350); return; }
+    i++; side._t = setTimeout(tick, 760);
+  };
+  clearTimeout(side._t);
+  tick();
+  if (window.innerWidth < 981) side.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ---------- FAKE NEWS ---------- */
+const NASTALIQ_SAMPLE = 'حکومت نے اعلان کیا ہے کہ اگلے ماہ سے تمام سرکاری دفاتر ہفتے میں صرف تین دن کھلیں گے۔';
+const ROMAN_SAMPLE = 'Hukoomat ne elaan kiya hai ke agle mahine se tamam sarkari daftar hafte mein sirf teen din khulenge.';
+const ROMAN_TRANSLIT = 'حکومت نے اعلان کیا ہے کہ اگلے مہینے سے تمام سرکاری دفاتر ہفتے میں صرف تین دن کھلیں گے۔';
+const DOMAINS = [['politics','Politics','سیاست'],['business','Business','کاروبار'],['health','Health','صحت'],['sports','Sports','کھیل'],['tech','Technology','ٹیکنالوجی'],['entertainment','Entertainment','تفریح'],['education','Education','تعلیم'],['general','General','عمومی']];
+const news = { script: 'nastaliq', domain: 'politics', outcome: store.get('sc1-news') || 'fake', texts: { nastaliq: NASTALIQ_SAMPLE, roman: ROMAN_SAMPLE } };
+const ta = $('#newsText');
+ta.value = news.texts.nastaliq;
+ta.addEventListener('input', () => { news.texts[news.script] = ta.value; updateCount(); if (news.script === 'roman') $('#translitText').textContent = ta.value.trim() === ROMAN_SAMPLE ? ROMAN_TRANSLIT : 'Transliteration appears here once the backend is connected.'; });
+function updateCount(){ const n = ta.value.trim().length; $('#count').textContent = n ? `${n} characters · text only` : 'Paste or type a news text to begin'; $('#verifyNews').disabled = !n; $('#verifyNews').style.opacity = n ? 1 : .5; }
+segment($('#scriptSeg'), (v) => {
+  news.script = v;
+  const roman = v === 'roman';
+  ta.className = roman ? 'latin' : 'urdu';
+  ta.dir = roman ? 'ltr' : 'rtl';
+  ta.lang = roman ? 'en' : 'ur';
+  ta.value = news.texts[v];
+  ta.style.animation = 'none'; void ta.offsetWidth; ta.style.animation = 'fade .4s ease both';
+  $('#translit').hidden = !roman;
+  $('#translitText').textContent = ta.value.trim() === ROMAN_SAMPLE ? ROMAN_TRANSLIT : 'Transliteration appears here once the backend is connected.';
+  updateCount();
+})('nastaliq');
+const domWrap = $('#domains');
+domWrap.innerHTML = DOMAINS.map(([id, en, ur]) => `<button type="button" class="chip" data-id="${id}" aria-pressed="${id === news.domain}">${en} <span class="ur" lang="ur">${ur}</span></button>`).join('');
+domWrap.addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (!b) return; news.domain = b.dataset.id; $$('.chip', domWrap).forEach((c) => c.setAttribute('aria-pressed', c === b)); if ($('#newsVerdict')) renderNews(false); });
+
+const NEWS_OUT = {
+  fake: { cls: 'bad', en: 'Likely fake', ur: 'غالباً جعلی', w: 82, why: ['No official notification, ministry or spokesperson is cited for a nationwide policy change.', 'The claim is sweeping and specific at once, a pattern common in forwarded rumours.', 'Phrasing resembles items labelled fake in the training corpora for this domain.'] },
+  real: { cls: 'good', en: 'Likely real', ur: 'غالباً مستند', w: 78, why: ['A named ministry and a dated notification are cited.', 'Details are specific and checkable, in the register of official reporting.', 'Phrasing resembles items labelled real in the training corpora for this domain.'] }
+};
+function demoSwitch(key, a, b, labelA, labelB, cur){
+  return `<div class="demo"><span>Demo outcome</span><div class="mini-seg" data-demo="${key}"><button type="button" data-o="${a}" aria-pressed="${cur === a}">${labelA}</button><button type="button" data-o="${b}" aria-pressed="${cur === b}">${labelB}</button></div></div>`;
+}
+function renderNews(animate = true){
+  const o = NEWS_OUT[news.outcome];
+  const d = DOMAINS.find((x) => x[0] === news.domain);
+  const side = $('#newsSide');
+  side.innerHTML = `
+    <div class="verdict ${o.cls} ${animate ? 'fade' : ''}" id="newsVerdict">
+      <div class="meta"><span>Verdict · demo data</span><span class="pill">${d[1]} · <span class="ur" lang="ur" style="line-height:1.6">${d[2]}</span></span></div>
+      <div><h2>${o.en}</h2><p class="ur v" lang="ur">${o.ur}</p></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="meta"><span>Model confidence <span class="ur" lang="ur" style="line-height:1.6">اعتماد</span></span><span style="font-family:var(--mono)">${o.w}% demo</span></div>
+        <div class="bar"><i style="width:${o.w}%"></i></div>
+      </div>
+    </div>
+    <div class="why ${animate ? 'fade' : ''}">
+      <h3>Why this verdict <span class="ur" lang="ur">وضاحت</span></h3>
+      <ol>${o.why.map((t, i) => `<li style="animation-delay:${.15 + i * .1}s">${t}</li>`).join('')}</ol>
+      <p class="note">Written by the LLM judge. The judge explains the classifier's verdict and cannot change it.</p>
+    </div>
+    <div class="btnrow"><button type="button" class="btn btn-ghost" id="copyNews">Copy report</button><button type="button" class="btn btn-ink" id="againNews">Run again</button></div>
+    ${demoSwitch('news', 'fake', 'real', 'Fake', 'Real', news.outcome)}`;
+  $('#againNews').onclick = verifyNews;
+  $('#copyNews').onclick = (e) => copyReport(e.currentTarget, `Sachai Check · Fake news\nVerdict: ${o.en} (${o.ur})\nDomain: ${d[1]}\nConfidence: ${o.w}% (demo)\n\n${o.why.map((t, i) => `${i + 1}. ${t}`).join('\n')}`);
+}
+function newsEmpty(){
+  $('#newsSide').innerHTML = `<div class="empty"><h3>Your verdict appears here</h3><p class="ur" lang="ur" style="font-size:20px;line-height:2;color:var(--pigeon);align-self:stretch;text-align:right;margin:0">نتیجہ یہاں ظاہر ہوگا</p><p>Press Verify to run the check. You'll see the verdict, a confidence score and the judge's explanation.</p></div>`;
+}
+function verifyNews(){
+  const labels = news.script === 'roman' ? ['Transliterating to Nastaliq','Running the classifier','Writing the explanation'] : ['Normalising Nastaliq text','Running the classifier','Writing the explanation'];
+  runSteps($('#newsSide'), 'جانچ جاری ہے', labels, () => renderNews(true));
+}
+$('#verifyNews').addEventListener('click', verifyNews);
+newsEmpty(); updateCount();
+
+/* ---------- AUDIO (live backend) ---------- */
+const API = new URLSearchParams(location.search).get('api') || window.SACHAI_API || '';
+const audio = { src: 'upload', file: null, fileName: '', buffer: null, peaks: null, ctx: null, node: null, playing: false, recTimer: null, secs: 0, media: null, chunks: [], result: null };
+const BARS = window.innerWidth < 640 ? 56 : 96;
+function flatPeaks(n){ return Array.from({ length: n }, (_, i) => .1 + .06 * ((i * 7) % 5) / 4); }
+function barFlag(i, n){
+  const r = audio.result, dur = audio.buffer ? audio.buffer.duration : null;
+  if (!r || !dur || !r.segments) return '';
+  const t0 = i / n * dur, t1 = (i + 1) / n * dur, off = r.trim_offset_sec || 0;
+  for (const s of r.segments) { if (s.flagged && t1 > s.start + off && t0 < s.end + off) return 'f'; }
+  return '';
+}
+function drawWave(){
+  const w = $('#wave'), n = BARS, peaks = audio.peaks || flatPeaks(n);
+  w.innerHTML = peaks.map((p, i) => `<b class="${barFlag(i, n)}" style="height:${Math.max(6, Math.round(p * 68))}px;animation-delay:${((i % 12) * .07).toFixed(2)}s"></b>`).join('');
+}
+function fmt(s){ s = Math.max(0, Math.round(s)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
+function setPlayIcon(){ const b = $('#playBtn'); b.innerHTML = audio.playing ? PAUSE : PLAY; b.setAttribute('aria-label', audio.playing ? 'Pause clip' : 'Play clip'); b.disabled = !audio.buffer; b.style.opacity = audio.buffer ? 1 : .4; }
+function stopPlayback(){
+  if (audio.node) { try { audio.node.onended = null; audio.node.stop(); } catch(e){} audio.node = null; }
+  cancelAnimationFrame(audio.raf); audio.playing = false;
+  $$('#wave b.pl').forEach((b) => b.classList.remove('pl'));
+  setPlayIcon();
+}
+function getCtx(){ if (!audio.ctx) { const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; audio.ctx = new C(); } return audio.ctx; }
+$('#playBtn').addEventListener('click', () => {
+  if (audio.playing) { stopPlayback(); return; }
+  if (!audio.buffer) return;
+  const ctx = getCtx(); if (!ctx) return;
+  audio.playing = true; setPlayIcon();
+  ctx.resume && ctx.resume();
+  const node = ctx.createBufferSource(); node.buffer = audio.buffer; node.connect(ctx.destination);
+  const t0 = ctx.currentTime; node.start(); audio.node = node;
+  node.onended = () => stopPlayback();
+  const bars = $$('#wave b');
+  const step = () => { const p = (ctx.currentTime - t0) / audio.buffer.duration; const k = Math.floor(p * bars.length); bars.forEach((b, i) => b.classList.toggle('pl', i <= k && !b.classList.contains('f'))); if (audio.playing) audio.raf = requestAnimationFrame(step); };
+  step();
+});
+function setReady(){ const b = $('#verifyAudio'); b.disabled = !audio.file; b.style.opacity = audio.file ? 1 : .5; }
+setPlayIcon(); drawWave(); setReady();
+
+async function useClip(blob, name){
+  stopPlayback();
+  audio.file = blob; audio.fileName = name; audio.result = null;
+  $('#fname').textContent = name; $('#fmeta').textContent = 'Reading audio…';
+  setReady();
+  const ctx = getCtx();
+  try {
+    const ab = await blob.arrayBuffer();
+    const buf = await new Promise((res, rej) => { const p = ctx.decodeAudioData(ab, res, rej); if (p && p.then) p.then(res, rej); });
+    audio.buffer = buf;
+    const data = buf.getChannelData(0), n = BARS, size = Math.floor(data.length / n) || 1, peaks = [];
+    for (let i = 0; i < n; i++) { let m = 0; for (let j = i * size; j < (i + 1) * size && j < data.length; j += 32) m = Math.max(m, Math.abs(data[j])); peaks.push(m); }
+    const max = Math.max(...peaks, .01); audio.peaks = peaks.map((p) => .08 + p / max * .92);
+    $('#fmeta').textContent = `${fmt(buf.duration)} · ${(buf.sampleRate / 1000).toFixed(1)} kHz`;
+  } catch (e) {
+    audio.buffer = null; audio.peaks = null;
+    $('#fmeta').textContent = 'Preview not available in this browser. The server can still analyse it.';
+  }
+  drawWave(); setPlayIcon(); audioEmpty();
+}
+$('#audioFile').addEventListener('change', (e) => { const f = e.target.files[0]; if (f) useClip(f, f.name); e.target.value = ''; });
+const drop = $('#drop');
+['dragenter','dragover'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', (e) => { const f = e.dataTransfer.files[0]; if (f && (f.type.startsWith('audio') || /\.(wav|mp3|m4a|ogg|opus|webm|flac|aac)$/i.test(f.name))) useClip(f, f.name); });
+$('#replace').addEventListener('click', () => { setSrc('upload'); $('#audioFile').click(); });
+
+const setSrc = segment($('#srcSeg'), (v) => { audio.src = v; $('#drop').hidden = v !== 'upload'; $('#rec').hidden = v !== 'record'; if (v !== 'record') stopRec(true); });
+
+function stopRec(silent){
+  clearInterval(audio.recTimer); audio.recTimer = null;
+  const b = $('#recBtn'); b.classList.remove('live'); b.setAttribute('aria-label', 'Start recording');
+  $('#recUr').textContent = 'ریکارڈنگ شروع کرنے کے لیے دبائیں';
+  if (audio.media && audio.media.state !== 'inactive') { audio.media.stop(); }
+}
+$('#recBtn').addEventListener('click', async () => {
+  const b = $('#recBtn');
+  if (audio.recTimer) { stopRec(); return; }
+  audio.secs = 0; $('#clock').textContent = '00:00'; $('#recNote').textContent = '';
+  audio.media = null; audio.chunks = [];
+  try {
+    if (!navigator.mediaDevices || !window.MediaRecorder) throw new Error('unsupported');
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mr = new MediaRecorder(stream); audio.media = mr;
+    mr.ondataavailable = (e) => { if (e.data.size) audio.chunks.push(e.data); };
+    mr.onstop = () => { stream.getTracks().forEach((t) => t.stop()); const type = mr.mimeType || 'audio/webm'; const ext = type.includes('ogg') ? 'ogg' : type.includes('mp4') ? 'm4a' : 'webm'; useClip(new Blob(audio.chunks, { type }), `recording.${ext}`); audio.media = null; };
+    mr.start();
+  } catch (e) {
+    $('#recNote').textContent = 'Microphone access is not available here. Upload a file instead.';
+    return;
+  }
+  b.classList.add('live'); b.setAttribute('aria-label', 'Stop recording');
+  $('#recUr').textContent = 'ریکارڈنگ جاری ہے';
+  audio.recTimer = setInterval(() => { audio.secs++; $('#clock').textContent = fmt(audio.secs); if (audio.secs >= 60) $('#recBtn').click(); }, 1000);
+});
+
+function audioEmpty(){
+  $('#audioSide').innerHTML = `<div class="empty"><h3>Your verdict appears here</h3><p class="ur" lang="ur" style="font-size:20px;line-height:2;color:var(--pigeon);align-self:stretch;text-align:right;margin:0">نتیجہ یہاں ظاہر ہوگا</p><p>Upload or record 3 to 60 seconds of Urdu speech, then press Analyse voice. You'll see the verdict, the segments that raised flags and an explanation built from the detector's measurements.</p></div>`;
+}
+function audioError(msg){
+  $('#audioSide').innerHTML = `<div class="empty fade"><h3>Could not analyse this clip</h3><p>${esc(msg)}</p><button type="button" class="btn btn-ink" id="retryAudio">Try again</button></div>`;
+  $('#retryAudio').onclick = verifyAudio;
+}
+const CLS = { synthetic: 'bad', bona_fide: 'good', inconclusive: 'mid' };
+function segCells(r){
+  const segs = r.segments || [];
+  if (!segs.length) return '<i></i>';
+  const n = Math.min(segs.length, 40), out = [];
+  for (let k = 0; k < n; k++) {
+    const grp = segs.slice(Math.floor(k * segs.length / n), Math.max(Math.floor((k + 1) * segs.length / n), Math.floor(k * segs.length / n) + 1));
+    const top = Math.max(...grp.map((s) => s.score));
+    const cls = grp.some((s) => s.flagged) ? 'f' : top > r.policy.low ? 'm' : '';
+    out.push(`<i class="${cls}" title="${fmt(grp[0].start)}–${fmt(grp[grp.length - 1].end)} · score ${top.toFixed(2)}" style="animation-delay:${(.15 + k * .025).toFixed(3)}s"></i>`);
+  }
+  return out.join('');
+}
+function renderAudio(r){
+  audio.result = r; drawWave();
+  const cls = CLS[r.verdict] || 'mid', score = r.spoof_score;
+  const ex = r.explanation || {}, bullets = ex.bullets || [];
+  const dur = r.quality ? fmt(r.quality.trimmed_sec) : '00:00';
+  const ood = r.ood && r.ood.flag ? '<span class="pill">Outside training conditions</span>' : '';
+  $('#audioSide').innerHTML = `
+    <div class="verdict ${cls} fade">
+      <div class="meta"><span>Verdict · ${esc((r.versions && r.versions.run) || 'detector')}</span>${ood}</div>
+      <div><h2>${esc(r.label_en)}</h2><p class="ur v" lang="ur">${esc(r.label_ur)}</p></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="meta"><span>Spoof score</span><span style="font-family:var(--mono)">${score == null ? '–' : score.toFixed(2)}</span></div>
+        <div class="bar"><i style="width:${score == null ? 0 : Math.round(score * 100)}%"></i></div>
+        <div class="meta"><span>genuine ≤ ${r.policy.low.toFixed(2)} · synthetic ≥ ${r.policy.high.toFixed(2)}</span><span style="font-family:var(--mono)">${(r.total_ms / 1000).toFixed(1)} s</span></div>
+      </div>
+    </div>
+    <div class="why fade">
+      <div class="row"><h3 style="display:block">Suspicious segments</h3><span class="legend"><i></i>flagged <i class="lm"></i>uncertain</span></div>
+      <div class="segs">${segCells(r)}</div>
+      <div class="times"><span>00:00</span><span>${dur}</span></div>
+      <h3 style="margin-top:6px">Why this verdict <span class="ur" lang="ur">وضاحت</span></h3>
+      <ol>${bullets.map((t, i) => `<li style="animation-delay:${.25 + i * .1}s">${esc(t)}</li>`).join('')}</ol>
+      <p class="ur" lang="ur" style="margin:0;font-size:18px;line-height:2.1;text-align:right;color:var(--ink2)">${esc(ex.summary_ur || '')}</p>
+      <ul class="cav">${(r.caveats || []).map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
+      <p class="note">${esc(ex.note || '')}</p>
+    </div>
+    <div class="btnrow"><button type="button" class="btn btn-ghost" id="copyAudio">Copy report</button><button type="button" class="btn btn-ink" id="againAudio">Run again</button></div>`;
+  $('#againAudio').onclick = verifyAudio;
+  $('#copyAudio').onclick = (e) => copyReport(e.currentTarget, `Sachai Check · Audio deepfake\nFile: ${audio.fileName}\nVerdict: ${r.label_en} (${r.label_ur})\nSpoof score: ${score == null ? 'n/a' : score.toFixed(2)} (genuine ≤ ${r.policy.low.toFixed(2)}, synthetic ≥ ${r.policy.high.toFixed(2)})\nAssessed: ${r.assessed_at}\n\n${bullets.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\n${(r.caveats || []).join('\n')}\nRequest: ${r.request_id}`);
+}
+async function verifyAudio(){
+  if (!audio.file) { audioError('Upload or record a clip first.'); return; }
+  stopPlayback();
+  const side = $('#audioSide'), started = performance.now();
+  runSteps(side, 'آواز کی جانچ جاری ہے', ['Decoding and trimming audio', 'Scoring each segment', 'Writing and checking the explanation'], () => {});
+  const fd = new FormData();
+  fd.append('file', audio.file, audio.fileName);
+  fd.append('confirm_urdu', 'true'); fd.append('confirm_permission', 'true');
+  let res = null, err = null;
+  try {
+    const r = await fetch(`${API}/api/audio`, { method: 'POST', body: fd });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok) res = j; else err = (typeof j.detail === 'string' ? j.detail : null) || `Request failed (${r.status}).`;
+  } catch (e) {
+    err = 'The Sachai Check server is not reachable. Start it with "uvicorn api.main:app" and open http://127.0.0.1:8000';
+  }
+  const wait = Math.max(0, 2600 - (performance.now() - started));
+  await new Promise((ok) => setTimeout(ok, wait));
+  clearTimeout(side._t);
+  if (err) audioError(err); else renderAudio(res);
+}
+$('#verifyAudio').addEventListener('click', verifyAudio);
+audioEmpty();
+
+/* ---------- demo switches + copy ---------- */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-demo] button'); if (!b) return;
+  const key = b.parentElement.dataset.demo;
+  if (key === 'news') { news.outcome = b.dataset.o; store.set('sc1-news', news.outcome); renderNews(true); }
+});
+function copyReport(btn, text){
+  const done = () => { const t = btn.textContent; btn.textContent = 'Copied'; setTimeout(() => (btn.textContent = t), 1600); };
+  try { navigator.clipboard.writeText(text).then(done, () => fallback()); } catch (e) { fallback(); }
+  function fallback(){ const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (e) {} t.remove(); }
+}
+
+go();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => moveInd($('.tabs a[aria-current="page"]'), $('.tabs .ind')));
+})();
+</script>
+</body>
+</html>

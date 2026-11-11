@@ -1,0 +1,10 @@
+
+===== analysis =====
+                                          descriptor  genuine_median  tacotron_median  cliffs_delta_tacotron  vits_median  cliffs_delta_vits
+0          Pitch variation (std of pitch, semitones)           1.552            1.273                 -0.396        1.424             -0.218
+1  Frame-to-frame pitch movement (median, semitones)           0.125            0.100                 -0.488        0.200              0.084
+2                    Share of frames that are voiced           0.885            0.930                  0.414        0.844             -0.060
+3                  Share of the clip spent in pauses           0.018            0.080                  0.466        0.010             -0.152
+4   Background level inside pauses (dB below speech)          40.130           42.518                  0.405       37.325             -0.513
+5   Energy in 4 to 8 kHz relative to 0 to 4 kHz (dB)         -25.403          -37.155                 -0.442      -29.073             -0.115
+6                    Spectral flatness during speech           0.001            0.000                 -0.525        0.002              0.079

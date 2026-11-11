@@ -1,0 +1,5 @@
+
+===== finalize =====
+Exported to D:\Sachai Check\deepfake audio\sachai-audio\sachai-audio\runs\xlsr300m-sls-v1\export
+Temperature 2.230 | thresholds low 0.149 eer 0.169 high 0.189 | dev EER 0.0088
+{'eer_threshold': 0.1690970280729313, 'low': 0.14909702807293132, 'high': 0.1890970280729313, 'dev_eer': 0.00877192982456143, 'target_precision': 0.99, 'min_band': 0.02, 'temperature': 2.2303337082482164, 'preprocess_version': 'v1-16k-mono-trim40', 'policy_version': 'v1-calibrated-band', 'model_id': '9dbb3e14d744ff9f', 'dev_raw_ece': 0.21991040019115637, 'dev_calibrated_ece': 0.20757298998675672}

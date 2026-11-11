@@ -1,0 +1,31 @@
+# Step 1, PyTorch with CUDA (do this first; plain "pip install torch" on Windows gives a CPU-only build).
+# RTX 50-series (RTX 5060) needs a CUDA 13.x build of torch 2.15:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu132
+# Check: python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"
+# If it prints False, update the NVIDIA driver and reinstall.
+#
+# Step 2:
+#   pip install -r requirements.txt
+
+torch>=2.7
+transformers>=4.46
+safetensors>=0.4
+huggingface_hub>=0.25
+numpy>=1.26
+scipy>=1.11
+pandas>=2.1
+scikit-learn>=1.4
+joblib>=1.3
+librosa>=0.10.2
+soundfile>=0.12
+soxr>=0.3
+imageio-ffmpeg>=0.5
+matplotlib>=3.8
+tqdm>=4.66
+python-dotenv>=1.0
+openai>=1.40
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+ipykernel>=6.29
+ipywidgets>=8.1

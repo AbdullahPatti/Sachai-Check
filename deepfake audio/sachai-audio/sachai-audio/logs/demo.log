@@ -1,0 +1,14 @@
+
+===== demo =====
+
+Spoofed_Tacotron/Speaker_01/10.wav (truth: synthetic) -> Likely synthetic score 0.7938 | OOD False | explanation: template
+  - The detector scored this clip 0.79, which is above the synthetic cut-off.
+  - 8 of 8 two-second segments score at or above the synthetic cut-off. Highest segment score 0.82 at 00:04 to 00:06; lowest 0.47 at 00:06 to 00:08.
+  - Measured share of frames that are voiced: 0.972. This is higher than 99% of genuine training clips (genuine median 0.852, synthetic median 0.888); the value is closer to the synthetic median. This measurement is context, not the reason for the verdict.
+
+Bonafide/Speaker_01/Part 1/10.wav (truth: genuine) -> Inconclusive score 0.151 | OOD False | explanation: template
+  - The detector scored this clip 0.15, which is inside the uncertainty band, so no decision is made.
+  - 3 of 7 two-second segments score at or above the synthetic cut-off. Highest segment score 0.21 at 00:03 to 00:05; lowest 0.15 at 00:05 to 00:07.
+  - Measured pitch variation (std of pitch, semitones): 5.99. This is higher than 100% of genuine training clips (genuine median 1.72, synthetic median 1.41); the value is closer to the genuine median. This measurement is context, not the reason for the verdict.
+
+latency: 112 ms per clip (7.7 s of audio) on cuda

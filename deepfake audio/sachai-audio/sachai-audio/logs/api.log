@@ -1,0 +1,20 @@
+INFO:     Started server process [4360]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+[sachai] model loaded from D:\Sachai Check\deepfake audio\sachai-audio\sachai-audio\runs\xlsr300m-sls-v1\export on cuda
+INFO:     127.0.0.1:55031 - "GET /health/live HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55034 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55035 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57196 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58861 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58861 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58915 - "POST /api/audio HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58941 - "POST /api/audio HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58957 - "POST /api/audio HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59016 - "POST /api/audio HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59051 - "POST /api/audio HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59089 - "POST /api/audio HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59106 - "POST /api/audio HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64469 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64469 - "GET /favicon.ico HTTP/1.1" 404 Not Found
