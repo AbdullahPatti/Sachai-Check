@@ -1,0 +1,4 @@
+# Extra packages for external/run_external.py only (IndicSynth is stored as Parquet on the Hugging Face Hub).
+#   .venv/Scripts/python -m pip install -r external/requirements.txt
+pyarrow>=15
+fsspec>=2024.2
