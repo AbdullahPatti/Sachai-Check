@@ -1,0 +1,94 @@
+
+===== external prepare =====
+Kathbath sample format:
+                             count    50%
+codec sample_rate channels              
+aac   44100       mono       20.0  131.0
+aac match:   0%|          | 0/4371 [00:00<?, ?it/s]aac match:   1%|          | 48/4371 [00:01<01:30, 47.88it/s]aac match:  10%|▉         | 432/4371 [00:05<00:53, 73.34it/s]aac match:  19%|█▊        | 816/4371 [00:15<01:13, 48.40it/s]aac match:  27%|██▋       | 1200/4371 [00:27<01:17, 41.18it/s]aac match:  36%|███▌      | 1584/4371 [00:37<01:11, 38.81it/s]aac match:  45%|████▌     | 1968/4371 [00:48<01:03, 37.64it/s]aac match:  54%|█████▍    | 2352/4371 [00:57<00:51, 39.46it/s]aac match:  63%|██████▎   | 2736/4371 [01:05<00:39, 41.30it/s]aac match:  71%|███████▏  | 3120/4371 [01:17<00:32, 38.04it/s]aac match:  80%|████████  | 3504/4371 [01:27<00:22, 38.66it/s]aac match:  89%|████████▉ | 3888/4371 [01:36<00:12, 40.00it/s]aac match:  98%|█████████▊| 4272/4371 [01:43<00:02, 42.68it/s]aac match: 100%|██████████| 4371/4371 [01:43<00:00, 42.17it/s]
+cache 16k:   0%|          | 0/20908 [00:00<?, ?it/s]cache 16k:   0%|          | 48/20908 [00:11<1:20:51,  4.30it/s]D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\.venv\Lib\site-packages\joblib\externals\loky\process_executor.py:787: UserWarning: A worker stopped while some jobs were given to the executor. This can be caused by a too short worker timeout or by a memory leak.
+  warnings.warn(
+cache 16k:   2%|▏         | 432/20908 [00:25<18:01, 18.94it/s] cache 16k:   4%|▍         | 816/20908 [00:29<09:38, 34.76it/s]cache 16k:   6%|▌         | 1200/20908 [00:36<07:47, 42.12it/s]cache 16k:   8%|▊         | 1584/20908 [00:42<06:43, 47.90it/s]cache 16k:   9%|▉         | 1968/20908 [00:49<06:15, 50.47it/s]cache 16k:  11%|█         | 2352/20908 [00:55<05:45, 53.66it/s]cache 16k:  13%|█▎        | 2736/20908 [01:07<06:56, 43.60it/s]cache 16k:  15%|█▍        | 3120/20908 [01:17<06:55, 42.82it/s]cache 16k:  17%|█▋        | 3504/20908 [01:23<06:05, 47.61it/s]cache 16k:  19%|█▊        | 3888/20908 [01:34<06:44, 42.03it/s]cache 16k:  20%|██        | 4272/20908 [01:45<06:53, 40.28it/s]cache 16k:  22%|██▏       | 4656/20908 [01:53<06:31, 41.56it/s]cache 16k:  24%|██▍       | 5040/20908 [02:01<06:01, 43.94it/s]cache 16k:  26%|██▌       | 5424/20908 [02:09<05:49, 44.31it/s]cache 16k:  28%|██▊       | 5808/20908 [02:17<05:25, 46.45it/s]cache 16k:  30%|██▉       | 6192/20908 [02:26<05:33, 44.17it/s]cache 16k:  31%|███▏      | 6576/20908 [02:34<05:09, 46.35it/s]cache 16k:  33%|███▎      | 6960/20908 [02:41<04:55, 47.22it/s]
+===== external prepare =====
+Kathbath sample format:
+                             count    50%
+codec sample_rate channels              
+aac   44100       mono       20.0  131.0
+aac match:   0%|          | 0/4371 [00:00<?, ?it/s]aac match:   1%|          | 48/4371 [00:00<00:36, 120.04it/s]aac match:  27%|██▋       | 1200/4371 [00:00<00:01, 2828.34it/s]aac match: 100%|██████████| 4371/4371 [00:00<00:00, 6960.32it/s]
+cache 16k:   0%|          | 0/20908 [00:00<?, ?it/s]cache 16k:   0%|          | 48/20908 [00:04<32:07, 10.82it/s]D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\.venv\Lib\site-packages\joblib\externals\loky\process_executor.py:787: UserWarning: A worker stopped while some jobs were given to the executor. This can be caused by a too short worker timeout or by a memory leak.
+  warnings.warn(
+cache 16k:   2%|▏         | 432/20908 [00:15<11:42, 29.16it/s]cache 16k:   4%|▍         | 816/20908 [00:17<05:39, 59.10it/s]cache 16k:   6%|▌         | 1200/20908 [00:22<04:58, 65.93it/s]cache 16k:   8%|▊         | 1584/20908 [00:25<04:02, 79.59it/s]cache 16k:   9%|▉         | 1968/20908 [00:28<03:26, 91.88it/s]cache 16k:  11%|█         | 2352/20908 [00:31<03:03, 101.16it/s]cache 16k:  13%|█▎        | 2736/20908 [00:34<02:48, 107.67it/s]cache 16k:  15%|█▍        | 3120/20908 [00:37<02:40, 110.86it/s]cache 16k:  17%|█▋        | 3504/20908 [00:40<02:32, 114.42it/s]cache 16k:  19%|█▊        | 3888/20908 [00:45<02:42, 104.45it/s]cache 16k:  20%|██        | 4272/20908 [00:47<02:25, 114.62it/s]cache 16k:  22%|██▏       | 4656/20908 [00:50<02:12, 122.35it/s]cache 16k:  24%|██▍       | 5040/20908 [00:53<02:10, 122.04it/s]cache 16k:  26%|██▌       | 5424/20908 [00:56<02:08, 120.66it/s]cache 16k:  28%|██▊       | 5808/20908 [01:00<02:09, 116.19it/s]cache 16k:  30%|██▉       | 6192/20908 [01:03<02:03, 119.02it/s]cache 16k:  31%|███▏      | 6576/20908 [01:05<01:47, 133.28it/s]joblib.externals.loky.process_executor._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\.venv\Lib\site-packages\joblib\externals\loky\process_executor.py", line 490, in _process_worker
+    r = call_item()
+  File "D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\.venv\Lib\site-packages\joblib\externals\loky\process_executor.py", line 291, in __call__
+    return self.fn(*self.args, **self.kwargs)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\.venv\Lib\site-packages\joblib\parallel.py", line 607, in __call__
+    return [func(*args, **kwargs) for func, args, kwargs in self.items]
+            ~~~~^^^^^^^^^^^^^^^^^
+  File "D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\sachai_audio\data.py", line 126, in _process_one
+    meta = json.loads(meta_p.read_text()) if meta_p.exists() else {}
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAB\AppData\Local\Python\pythoncore-3.15-64\Lib\json\__init__.py", line 371, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\LAB\AppData\Local\Python\pythoncore-3.15-64\Lib\json\decoder.py", line 358, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\LAB\AppData\Local\Python\pythoncore-3.15-64\Lib\json\decoder.py", line 376, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\external\run_external.py", line 484, in <module>
+    main()
+    ~~~~^^
+  File "D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\external\run_external.py", line 474, in main
+    prepare(cfg)
+    ~~~~~~~^^^^^
+  File "D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\external\run_external.py", line 272, in prepare
+    metas = Parallel(n_jobs=-1, batch_size=16)(delayed(_process_one)(str(RAW / p), cache_of(p), cfg.sample_rate, cfg.trim_top_db)
+                                               for p in tqdm(man.path, desc="cache 16k"))
+  File "D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\.venv\Lib\site-packages\joblib\parallel.py", line 2098, in __call__
+    return output if self.return_generator else list(output)
+                                                ~~~~^^^^^^^^
+  File "D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\.venv\Lib\site-packages\joblib\parallel.py", line 1704, in _get_outputs
+    yield from self._retrieve()
+  File "D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\.venv\Lib\site-packages\joblib\parallel.py", line 1806, in _retrieve
+    self._raise_error_fast()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\.venv\Lib\site-packages\joblib\parallel.py", line 1885, in _raise_error_fast
+    error_job.get_result(self.timeout)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\.venv\Lib\site-packages\joblib\parallel.py", line 780, in get_result
+    return self._return_or_raise()
+           ~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\.venv\Lib\site-packages\joblib\parallel.py", line 795, in _return_or_raise
+    raise self._result
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+cache 16k:  33%|███▎      | 6959/20908 [01:07<02:14, 103.40it/s]
+
+===== external prepare =====
+Kathbath sample format:
+                             count    50%
+codec sample_rate channels              
+aac   44100       mono       20.0  131.0
+aac match:   0%|          | 0/4371 [00:00<?, ?it/s]aac match:   1%|          | 48/4371 [00:00<01:00, 71.00it/s]aac match:  71%|███████▏  | 3120/4371 [00:00<00:00, 5352.18it/s]aac match: 100%|██████████| 4371/4371 [00:00<00:00, 5316.63it/s]
+cache 16k:   0%|          | 0/20908 [00:00<?, ?it/s]cache 16k:   0%|          | 48/20908 [00:03<28:12, 12.33it/s]D:\Sachai-Check\deepfake audio\sachai-audio\sachai-audio\.venv\Lib\site-packages\joblib\externals\loky\process_executor.py:787: UserWarning: A worker stopped while some jobs were given to the executor. This can be caused by a too short worker timeout or by a memory leak.
+  warnings.warn(
+cache 16k:   2%|▏         | 432/20908 [00:06<04:13, 80.71it/s]cache 16k:   4%|▍         | 816/20908 [00:08<02:52, 116.33it/s]cache 16k:  14%|█▍        | 2901/20908 [00:08<00:29, 613.57it/s]cache 16k:  23%|██▎       | 4813/20908 [00:08<00:13, 1226.60it/s]cache 16k:  32%|███▏      | 6593/20908 [00:08<00:07, 1975.44it/s]cache 16k:  38%|███▊      | 8004/20908 [00:17<00:30, 420.81it/s] cache 16k:  38%|███▊      | 8004/20908 [00:29<00:30, 420.81it/s]cache 16k:  41%|████      | 8496/20908 [00:36<01:28, 139.64it/s]cache 16k:  42%|████▏     | 8880/20908 [00:47<02:00, 99.57it/s] cache 16k:  44%|████▍     | 9264/20908 [00:58<02:31, 76.96it/s]cache 16k:  44%|████▍     | 9264/20908 [01:09<02:31, 76.96it/s]cache 16k:  46%|████▌     | 9648/20908 [01:12<03:16, 57.22it/s]cache 16k:  48%|████▊     | 10032/20908 [01:24<03:37, 49.98it/s]cache 16k:  50%|████▉     | 10416/20908 [01:35<03:54, 44.65it/s]cache 16k:  52%|█████▏    | 10800/20908 [01:46<04:01, 41.81it/s]cache 16k:  53%|█████▎    | 11184/20908 [01:59<04:12, 38.51it/s]cache 16k:  55%|█████▌    | 11568/20908 [02:06<03:47, 41.10it/s]cache 16k:  58%|█████▊    | 12221/20908 [02:18<03:07, 46.26it/s]cache 16k:  58%|█████▊    | 12221/20908 [02:29<03:07, 46.26it/s]cache 16k:  59%|█████▉    | 12336/20908 [02:30<04:12, 33.99it/s]cache 16k:  61%|██████    | 12720/20908 [02:41<03:59, 34.13it/s]cache 16k:  63%|██████▎   | 13104/20908 [02:50<03:34, 36.45it/s]cache 16k:  65%|██████▍   | 13554/20908 [03:03<03:24, 35.91it/s]cache 16k:  66%|██████▋   | 13872/20908 [03:18<03:49, 30.72it/s]cache 16k:  66%|██████▋   | 13872/20908 [03:29<03:49, 30.72it/s]cache 16k:  68%|██████▊   | 14256/20908 [03:29<03:29, 31.83it/s]cache 16k:  70%|███████   | 14640/20908 [03:37<02:59, 34.96it/s]cache 16k:  70%|███████   | 14640/20908 [03:49<02:59, 34.96it/s]cache 16k:  72%|███████▏  | 15024/20908 [03:49<02:52, 34.21it/s]cache 16k:  74%|███████▎  | 15408/20908 [03:58<02:30, 36.43it/s]cache 16k:  74%|███████▎  | 15408/20908 [04:09<02:30, 36.43it/s]cache 16k:  76%|███████▌  | 15792/20908 [04:10<02:26, 35.00it/s]cache 16k:  77%|███████▋  | 16176/20908 [04:22<02:17, 34.45it/s]cache 16k:  79%|███████▉  | 16560/20908 [04:33<02:06, 34.24it/s]cache 16k:  81%|████████  | 16944/20908 [04:44<01:54, 34.59it/s]cache 16k:  83%|████████▎ | 17328/20908 [04:57<01:49, 32.55it/s]cache 16k:  85%|████████▍ | 17712/20908 [05:08<01:34, 33.76it/s]cache 16k:  85%|████████▍ | 17712/20908 [05:19<01:34, 33.76it/s]cache 16k:  87%|████████▋ | 18096/20908 [05:22<01:30, 31.15it/s]cache 16k:  88%|████████▊ | 18480/20908 [05:30<01:09, 34.96it/s]cache 16k:  90%|█████████ | 18864/20908 [05:40<00:56, 35.88it/s]cache 16k:  92%|█████████▏| 19248/20908 [05:54<00:50, 32.60it/s]cache 16k:  94%|█████████▍| 19632/20908 [06:05<00:38, 33.18it/s]cache 16k:  94%|█████████▍| 19632/20908 [06:19<00:38, 33.18it/s]cache 16k:  96%|█████████▌| 20016/20908 [06:19<00:28, 31.40it/s]cache 16k:  98%|█████████▊| 20400/20908 [06:31<00:15, 32.02it/s]cache 16k:  99%|█████████▉| 20784/20908 [06:41<00:03, 33.56it/s]cache 16k: 100%|██████████| 20908/20908 [06:41<00:00, 52.10it/s]
+                               clips  speakers  hours
+source         variant                               
+freevc24       aac_matched       846        47    1.3
+               as_distributed    846        47    1.3
+kathbath_clean real             8358        51   12.8
+kathbath_noisy real             3808        40    6.0
+xtts_v2        aac_matched      3524        47    5.3
+               as_distributed   3524        47    5.3
+parity check: 5 CSALT test clips re-cached identically
+leakage audit (aac_matched): {'metadata_auc_raw_metadata': 0.9619569564723168, 'metadata_auc_after_trim': 0.5183795421152122, 'excluded_short_clips': 1}  <-- above 0.75, report it
+leakage audit (as_distributed): {'metadata_auc_raw_metadata': 0.961163993988052, 'metadata_auc_after_trim': 0.5183952771684903, 'excluded_short_clips': 1}  <-- above 0.75, report it

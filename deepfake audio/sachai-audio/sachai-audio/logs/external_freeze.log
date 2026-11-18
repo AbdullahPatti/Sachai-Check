@@ -1,0 +1,3 @@
+
+===== external freeze =====
+Frozen: {'calibration': 35, 'evaluation': 33}. Commit external/frozen/ now, so the date is on record.

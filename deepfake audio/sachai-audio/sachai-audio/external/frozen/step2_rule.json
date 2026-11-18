@@ -1,0 +1,10 @@
+{
+  "decided": "2026-11-16, by the team, before any external clip was scored",
+  "applies_to": "product policy only; the paper keeps the v1 result on the original CSALT test speakers",
+  "keep": "v1 temperature and v1 genuine line (low)",
+  "synthetic_line": "smallest value such that at most 1% of calibration-speaker Kathbath real clips (clean and noisy, as distributed) have a calibrated spoof score at or above it",
+  "max_real_above_line": 0.01,
+  "evaluation": "evaluation speakers are scored once with the resulting policy, codec-matched view as headline",
+  "freevc24": "a clip belongs to its target speaker; in evaluation, clips whose source speaker is a calibration speaker are dropped",
+  "stop_condition": "if the new synthetic line is at or below the genuine line, stop; the team decides before anything else is run"
+}
